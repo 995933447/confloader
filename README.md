@@ -1,7 +1,7 @@
 # confloader
 简单易用的配置加载器
 使用示例：
-
+```
 import (
 	"os"
 	"os/signal"
@@ -40,3 +40,4 @@ func TestLoader(t *testing.T) {
 
 	loader.WatchToLoad(errCh)
 }
+```

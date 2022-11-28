@@ -30,10 +30,12 @@ func TestLoader(t *testing.T) {
 				t.Error(err)
 			case <-sc:
 				t.Log("cancel loop")
-				loader.CancelLoop()
+				// 推出循环阻塞
+				loader.CancelWatch()
 			}
 		}
 	}()
 
+	// 阻塞定时加载更新配置
 	loader.WatchToLoad(errCh)
 }

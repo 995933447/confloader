@@ -8,7 +8,6 @@ import (
 	"syscall"
 	"testing"
 	"time"
-  "995933447/confloader"
 )
 
 func TestLoader(t *testing.T) {
@@ -22,7 +21,7 @@ func TestLoader(t *testing.T) {
 		sc = make(chan os.Signal)
 	)
 	signal.Notify(sc, syscall.SIGINT)
-	loader := confloader.NewLoader("./test_json.json", time.Second /* 定时更新配置间隔 */, &c)
+	loader := NewLoader("./test_json.json", time.Second  /* 定时更新配置间隔 */, &c)
 	go func() {
 		tk := time.Tick(time.Second)
 		for {
@@ -33,11 +32,13 @@ func TestLoader(t *testing.T) {
 				t.Error(err)
 			case <-sc:
 				t.Log("cancel loop")
-				loader.CancelLoop()
+				// 推出循环阻塞
+				loader.CancelWatch()
 			}
 		}
 	}()
 
+	// 阻塞定时加载更新配置
 	loader.WatchToLoad(errCh)
 }
 ```

@@ -78,6 +78,6 @@ func (l *Loader) Load() error {
 	return nil
 }
 
-func (l *Loader) CancelLoop() {
+func (l *Loader) CancelWatch() {
 	l.cancelLoopSignCh <- struct{}{}
 }

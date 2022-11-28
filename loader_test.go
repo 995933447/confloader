@@ -19,7 +19,7 @@ func TestLoader(t *testing.T) {
 		sc = make(chan os.Signal)
 	)
 	signal.Notify(sc, syscall.SIGINT)
-	loader := NewLoader("./test_json.json", time.Second, &c)
+	loader := NewLoader("./test_json.json", time.Second  /* 定时更新配置间隔 */, &c)
 	go func() {
 		tk := time.Tick(time.Second)
 		for {

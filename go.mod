@@ -1,4 +1,4 @@
-module 995933447/confloader
+module github.com/995933447/confloader
 
 go 1.19
 

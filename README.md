@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"testing"
 	"time"
-    "github.com/995933447/confloader"
+	"github.com/995933447/confloader"
 )
 
 func TestLoader(t *testing.T) {

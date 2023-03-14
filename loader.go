@@ -6,22 +6,23 @@ import (
 	"github.com/BurntSushi/toml"
 	"os"
 	"path/filepath"
+	"reflect"
 	"time"
 )
 
 type Loader struct {
-	loadFile string
-	reloadInterval time.Duration
+	loadFile         string
+	reloadInterval   time.Duration
 	cancelLoopSignCh chan struct{}
-	conf interface{}
+	conf             interface{}
 }
 
 func NewLoader(loadConfigFile string, reloadInterval time.Duration, conf interface{}) *Loader {
 	loader := &Loader{
-		loadFile: loadConfigFile,
-		reloadInterval: reloadInterval,
+		loadFile:         loadConfigFile,
+		reloadInterval:   reloadInterval,
 		cancelLoopSignCh: make(chan struct{}),
-		conf: conf,
+		conf:             conf,
 	}
 	return loader
 }
@@ -36,14 +37,14 @@ func (l *Loader) WatchToLoad(errCh chan error) {
 	doLoad()
 
 	var (
-		reloadTicker = time.NewTicker(l.reloadInterval)
+		reloadTicker   = time.NewTicker(l.reloadInterval)
 		isCanceledLoop bool
 	)
 	for {
 		select {
-		case _ = <- reloadTicker.C:
+		case _ = <-reloadTicker.C:
 			doLoad()
-		case _ = <- l.cancelLoopSignCh:
+		case _ = <-l.cancelLoopSignCh:
 			reloadTicker.Stop()
 			isCanceledLoop = true
 		}
@@ -60,20 +61,25 @@ func (l *Loader) Load() error {
 		return err
 	}
 
+	newCfgType := reflect.New(reflect.ValueOf(l.conf).Elem().Type())
+	newestCfg := newCfgType.Interface()
+
 	switch filepath.Ext(l.loadFile) {
 	case ".json":
-		err = json.Unmarshal(buf, l.conf)
+		err = json.Unmarshal(buf, newestCfg)
 		if err != nil {
 			return err
 		}
 	case ".toml":
-		_, err = toml.Decode(string(buf), l.conf)
+		_, err = toml.Decode(string(buf), newestCfg)
 		if err != nil {
 			return err
 		}
 	default:
 		return errors.New("either TOML or JSON is supported")
 	}
+
+	reflect.ValueOf(l.conf).Elem().Set(newCfgType.Elem())
 
 	return nil
 }
